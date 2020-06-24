@@ -1,15 +1,25 @@
 const express = require("express")
+const http = require("http")
 const path = require("path")
+const socketio = require("socket.io")
 // const hbs = require("hbs")
 
 const app = express()
-const port = process.env.PORT || 3000
+// This happens behind the scenes but we are specifically writing this to integrate socket.io in the mix
+const server = http.createServer(app)
+// Socket IO needs to be passed a raw http server just like below and that is why we have defined the server exlicitly
+const io = socketio(server)
 
+const port = process.env.PORT || 3000
 const publicPath = path.join(__dirname, "../public")
 
 // app.set("view engine", "hbs")
 app.use(express.static(publicPath))
 
-app.listen(port, () => {
+io.on("connection", () => {
+  console.log("New WebSocket Connection!")
+})
+
+server.listen(port, () => {
   console.log("Server is up on port - " + port)
 })
