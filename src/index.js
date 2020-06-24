@@ -16,8 +16,22 @@ const publicPath = path.join(__dirname, "../public")
 // app.set("view engine", "hbs")
 app.use(express.static(publicPath))
 
-io.on("connection", () => {
+let count = 0
+
+// This socket is an object with client information. Can be used to communicate with the client
+io.on("connection", (socket) => {
   console.log("New WebSocket Connection!")
+
+  // Any number of variables sent to the client using emit can be accessed from the callback function at the client side
+  socket.emit("countUpdated", count)
+
+  socket.on("increment", () => {
+    count++
+    // This emits the message to only the current connection
+    // socket.emit('countUpdated', count)
+
+    io.emit("countUpdated", count)
+  })
 })
 
 server.listen(port, () => {
