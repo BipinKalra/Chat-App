@@ -19,6 +19,12 @@ app.use(express.static(publicPath))
 // This socket is an object with client information. Can be used to communicate with the client
 io.on("connection", (socket) => {
   console.log("New WebSocket Connection!")
+
+  socket.emit("welcomeMessage")
+
+  socket.on("textMessage", (message) => {
+    io.emit("message", message)
+  })
 })
 
 server.listen(port, () => {

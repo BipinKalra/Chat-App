@@ -1,5 +1,20 @@
 const socket = io()
 
+socket.on("welcomeMessage", () => {
+  console.log("Welcome!")
+})
+
+document.querySelector("#message-form").addEventListener("submit", (e) => {
+  e.preventDefault()
+
+  const message = document.querySelector("input").value
+
+  socket.emit("textMessage", message)
+})
+
+socket.on("message", (message) => {
+  console.log(message)
+})
 
 // DEPRECATED CODE FOR LEARNING
 
