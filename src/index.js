@@ -4,6 +4,7 @@ const path = require("path")
 const socketio = require("socket.io")
 const Filter = require("bad-words")
 const { generateMessage, generateLocationMessage } = require("./utils/messages")
+const { addUser, removeUser, getUser, getUsersInRoom } = require("./utils/users")
 // const hbs = require("hbs")
 
 const app = express()
@@ -25,9 +26,16 @@ io.on("connection", (socket) => {
   // socket.emit - to emit to that particular connection
   // socket.broadcast.emit - to emit to everyone but that particular connection
   // io.emit - to emit to everyone
+  // socket.broadcast.to(roomname).emit - emit to everyone but you in a particular room
+  // io.to(roomname).emit - emit to everyone in the room
 
-  socket.emit("message", generateMessage("Welcome!"))
-  socket.broadcast.emit("message", generateMessage("A new user has joined!"))
+  socket.on("join", ({ username, room }) => {
+    // This feature in socket.io gives a method to emit events specifically to the mentioned room
+    socket.join(room)
+
+    socket.emit("message", generateMessage("Welcome!"))
+    socket.broadcast.to(room).emit("message", generateMessage(`${username} has joined the room!`))
+  })
 
   socket.on("textMessage", (message, callback) => {
     const filter = new Filter()

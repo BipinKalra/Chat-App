@@ -14,11 +14,19 @@ const $messageTemplate = document.querySelector("#message-template").innerHTML;
 const $locationTemplate = document.querySelector("#location-template")
   .innerHTML;
 
+// Options
+
+// This is one of the imported JS files that helps in parsing query strings
+const { username, room } = Qs.parse(location.search, {
+  ignoreQueryPrefix: true,
+});
+
 socket.on("message", (message) => {
   // console.log(message);
 
   const html = Mustache.render($messageTemplate, {
     text: message.text,
+    username: username,
     createdAt: moment(message.createdAt).format("h:mm A"),
   });
   $messages.insertAdjacentHTML("beforeend", html);
@@ -29,7 +37,8 @@ socket.on("locationMessage", (location) => {
 
   const html = Mustache.render($locationTemplate, {
     url: location.url,
-    createdAt: moment(location.createdAt).format("h:mm A")
+    username: username,
+    createdAt: moment(location.createdAt).format("h:mm A"),
   });
   $messages.insertAdjacentHTML("beforeend", html);
 });
@@ -81,6 +90,11 @@ document.querySelector("#send-location").addEventListener("click", () => {
     );
     // console.log(position.coords)
   });
+});
+
+socket.emit("join", {
+  username,
+  room,
 });
 
 // DEPRECATED CODE FOR LEARNING
