@@ -2,6 +2,7 @@ const express = require("express")
 const http = require("http")
 const path = require("path")
 const socketio = require("socket.io")
+const Filter = require("bad-words")
 // const hbs = require("hbs")
 
 const app = express()
@@ -20,10 +21,32 @@ app.use(express.static(publicPath))
 io.on("connection", (socket) => {
   console.log("New WebSocket Connection!")
 
-  socket.emit("welcomeMessage")
+  // socket.emit - to emit to that particular connection
+  // socket.broadcast.emit - to emit to everyone but that particular connection
+  // io.emit - to emit to everyone
 
-  socket.on("textMessage", (message) => {
+  socket.emit("message", "Welcome!")
+  socket.broadcast.emit("message", "A new user has joined!")
+
+  socket.on("textMessage", (message, callback) => {
+    const filter = new Filter()
+
+    if (filter.isProfane(message)) {
+      return callback("Profanity is not allowed!")
+    }
+
     io.emit("message", message)
+    callback()
+  })
+
+  socket.on("sendLocation", (location, callback) => {
+    io.emit("locationMessage", `https://google.com/maps?q=${location.latitude},${location.longitude}`)
+    callback()
+  })
+
+  // Predefined event for when a connection is terminated
+  socket.on("disconnect", () => {
+    io.emit("message", "A user has disconnected!")
   })
 })
 
