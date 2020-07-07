@@ -3,6 +3,7 @@ const http = require("http")
 const path = require("path")
 const socketio = require("socket.io")
 const Filter = require("bad-words")
+const { generateMessage, generateLocationMessage } = require("./utils/messages")
 // const hbs = require("hbs")
 
 const app = express()
@@ -25,8 +26,8 @@ io.on("connection", (socket) => {
   // socket.broadcast.emit - to emit to everyone but that particular connection
   // io.emit - to emit to everyone
 
-  socket.emit("message", "Welcome!")
-  socket.broadcast.emit("message", "A new user has joined!")
+  socket.emit("message", generateMessage("Welcome!"))
+  socket.broadcast.emit("message", generateMessage("A new user has joined!"))
 
   socket.on("textMessage", (message, callback) => {
     const filter = new Filter()
@@ -35,18 +36,18 @@ io.on("connection", (socket) => {
       return callback("Profanity is not allowed!")
     }
 
-    io.emit("message", message)
+    io.emit("message", generateMessage(message))
     callback()
   })
 
   socket.on("sendLocation", (location, callback) => {
-    io.emit("locationMessage", `https://google.com/maps?q=${location.latitude},${location.longitude}`)
+    io.emit("locationMessage", generateLocationMessage(`https://google.com/maps?q=${location.latitude},${location.longitude}`))
     callback()
   })
 
   // Predefined event for when a connection is terminated
   socket.on("disconnect", () => {
-    io.emit("message", "A user has disconnected!")
+    io.emit("message", generateMessage("A user has disconnected!"))
   })
 })
 

@@ -18,18 +18,20 @@ socket.on("message", (message) => {
   // console.log(message);
 
   const html = Mustache.render($messageTemplate, {
-    message,
+    text: message.text,
+    createdAt: moment(message.createdAt).format("h:mm A"),
   });
   $messages.insertAdjacentHTML("beforeend", html);
 });
 
-socket.on("locationMessage", (url) => {
-  console.log(url);
+socket.on("locationMessage", (location) => {
+  // console.log(location);
 
   const html = Mustache.render($locationTemplate, {
-    url,
+    url: location.url,
+    createdAt: moment(location.createdAt).format("h:mm A")
   });
-  $messages.insertAdjacentHTML("beforeend", html)
+  $messages.insertAdjacentHTML("beforeend", html);
 });
 
 $messageForm.addEventListener("submit", (e) => {
